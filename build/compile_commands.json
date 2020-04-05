@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/Users/davidgarcia/repos/chip-8/build",
+  "command": "/usr/bin/clang  -I/usr/local/Cellar/sdl2/2.0.12_1/include/SDL2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk   -o CMakeFiles/chip8.dir/chip8.c.o   -c /Users/davidgarcia/repos/chip-8/chip8.c",
+  "file": "/Users/davidgarcia/repos/chip-8/chip8.c"
+}
+]
