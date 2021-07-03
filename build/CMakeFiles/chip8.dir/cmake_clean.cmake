@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/chip8.dir/chip8.c.o"
+  "CMakeFiles/chip8.dir/chip8.c.o.d"
   "chip8"
   "chip8.pdb"
 )
