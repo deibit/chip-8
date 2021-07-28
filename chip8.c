@@ -495,7 +495,6 @@ void chip8_step()
       {
         memory[I + i] = V[i];
       }
-      //I += V[x] + 1;
       PC += 2;
       break;
 
@@ -505,7 +504,6 @@ void chip8_step()
       {
         V[i] = memory[I + i];
       }
-      //I -= V[x] + 1;
       PC += 2;
       break;
     default:
