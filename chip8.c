@@ -42,8 +42,6 @@
 #define cdebug(fmt, ...)
 #endif
 
-// https://stackoverflow.com/questions/1644868/define-macro-for-debug-printing-in-c
-
 uint8_t display[64][32];
 uint8_t keyboard[16]; // 16 keys
 
