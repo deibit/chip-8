@@ -2,3 +2,4 @@ build/*
 games/*
 .cache/*
 .vscode/*
+.DS_Store

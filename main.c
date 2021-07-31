@@ -59,7 +59,7 @@ int main(int argc, char **argv)
       {
         start = SDL_GetTicks();
 
-        // Using texture instead of directo to renderer
+        // Using texture instead of direct to renderer
         // https://github.com/danirod/chip8/blob/devel/src/chip8/libsdl.c#L217
         SDL_LockTexture(texture, NULL, (void **)&pixels, &pitch);
         draw(pixels);
