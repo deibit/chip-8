@@ -5,8 +5,6 @@
 #include "SDL.h"
 #include "chip8.h"
 
-#define LEN(x) (sizeof(x) / sizeof(*x))
-
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 320
 #define FPS (1000 / 60)
@@ -14,14 +12,37 @@
 extern uint8_t display[64][32];
 extern uint8_t keyboard[16];
 
+void draw(Uint32 *pixels)
+{
+  for (uint8_t y = 0; y < 32; y++)
+  {
+    for (uint8_t x = 0; x < 64; x++)
+    {
+      Uint32 value = display[x][y] ? -1 : 0; // -1 -> white
+      *pixels = value;
+      pixels++;
+    }
+  }
+}
+
 int main(int argc, char **argv)
 {
   if (SDL_Init(SDL_INIT_VIDEO) == 0)
   {
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
+    SDL_Texture *texture = NULL;
 
-    if (SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &window, &renderer) == 0)
+    window = SDL_CreateWindow("CHIP8",
+                              SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                              640, 320, SDL_WINDOW_SHOWN);
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+                                SDL_TEXTUREACCESS_STREAMING, 64, 32);
+
+    if (window && renderer && texture)
     {
       SDL_bool done = SDL_FALSE;
 
@@ -30,144 +51,81 @@ int main(int argc, char **argv)
       //chip8_print_memory(loaded);
       //exit(0);
 
+      Uint32 *pixels;
+      int pitch;
+      Uint32 start;
+
       while (!done)
       {
-        SDL_Event event;
-        Uint32 start = SDL_GetTicks();
+        start = SDL_GetTicks();
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        // Using texture instead of directo to renderer
+        // https://github.com/danirod/chip8/blob/devel/src/chip8/libsdl.c#L217
+        SDL_LockTexture(texture, NULL, (void **)&pixels, &pitch);
+        draw(pixels);
+        SDL_UnlockTexture(texture);
+
         SDL_RenderClear(renderer);
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-
-        for (uint8_t x = 0; x < (SCREEN_WIDTH / 10); x++)
-        {
-          for (uint8_t y = 0; y < (SCREEN_HEIGHT / 10); y++)
-          {
-            if (display[x][y] != 0)
-            {
-              const SDL_Rect r = {.x = x * 10,
-                                  .y = y * 10,
-                                  .h = 10,
-                                  .w = 10};
-              SDL_RenderFillRect(
-                  renderer, &r);
-            }
-          }
-        }
-
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
 
+        SDL_Event event;
         while (SDL_PollEvent(&event))
         {
           if (event.type == SDL_QUIT)
-          {
             done = SDL_TRUE;
-          }
-          else if (event.type == SDL_KEYDOWN)
+          else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
           {
+            uint8_t val = event.type == SDL_KEYDOWN ? 1 : 0;
             switch (event.key.keysym.sym)
             {
-            case SDL_SCANCODE_1:
-              keyboard[0] = 1;
+            case SDLK_1:
+              keyboard[0] = val;
               break;
-            case SDL_SCANCODE_2:
-              keyboard[1] = 1;
+            case SDLK_2:
+              keyboard[1] = val;
               break;
-            case SDL_SCANCODE_3:
-              keyboard[2] = 1;
+            case SDLK_3:
+              keyboard[2] = val;
               break;
-            case SDL_SCANCODE_4:
-              keyboard[3] = 1;
+            case SDLK_4:
+              keyboard[3] = val;
               break;
-            case SDL_SCANCODE_Q:
-              keyboard[4] = 1;
+            case SDLK_q:
+              keyboard[4] = val;
               break;
-            case SDL_SCANCODE_W:
-              keyboard[5] = 1;
+            case SDLK_w:
+              keyboard[5] = val;
               break;
-            case SDL_SCANCODE_E:
-              keyboard[6] = 1;
+            case SDLK_e:
+              keyboard[6] = val;
               break;
-            case SDL_SCANCODE_R:
-              keyboard[7] = 1;
+            case SDLK_r:
+              keyboard[7] = val;
               break;
-            case SDL_SCANCODE_A:
-              keyboard[8] = 1;
+            case SDLK_a:
+              keyboard[8] = val;
               break;
-            case SDL_SCANCODE_S:
-              keyboard[9] = 1;
+            case SDLK_s:
+              keyboard[9] = val;
               break;
-            case SDL_SCANCODE_D:
-              keyboard[10] = 1;
+            case SDLK_d:
+              keyboard[10] = val;
               break;
-            case SDL_SCANCODE_F:
-              keyboard[11] = 1;
+            case SDLK_f:
+              keyboard[11] = val;
               break;
-            case SDL_SCANCODE_Z:
-              keyboard[12] = 1;
+            case SDLK_z:
+              keyboard[12] = val;
               break;
-            case SDL_SCANCODE_X:
-              keyboard[13] = 1;
+            case SDLK_x:
+              keyboard[13] = val;
               break;
-            case SDL_SCANCODE_C:
-              keyboard[14] = 1;
+            case SDLK_c:
+              keyboard[14] = val;
               break;
-            case SDL_SCANCODE_V:
-              keyboard[15] = 1;
-              break;
-            }
-          }
-          else if (event.type == SDL_KEYUP)
-          {
-            switch (event.key.keysym.sym)
-            {
-            case SDL_SCANCODE_1:
-              keyboard[0] = 0;
-              break;
-            case SDL_SCANCODE_2:
-              keyboard[1] = 0;
-              break;
-            case SDL_SCANCODE_3:
-              keyboard[2] = 0;
-              break;
-            case SDL_SCANCODE_4:
-              keyboard[3] = 0;
-              break;
-            case SDL_SCANCODE_Q:
-              keyboard[4] = 0;
-              break;
-            case SDL_SCANCODE_W:
-              keyboard[5] = 0;
-              break;
-            case SDL_SCANCODE_E:
-              keyboard[6] = 0;
-              break;
-            case SDL_SCANCODE_R:
-              keyboard[7] = 0;
-              break;
-            case SDL_SCANCODE_A:
-              keyboard[8] = 0;
-              break;
-            case SDL_SCANCODE_S:
-              keyboard[9] = 0;
-              break;
-            case SDL_SCANCODE_D:
-              keyboard[10] = 0;
-              break;
-            case SDL_SCANCODE_F:
-              keyboard[11] = 0;
-              break;
-            case SDL_SCANCODE_Z:
-              keyboard[12] = 0;
-              break;
-            case SDL_SCANCODE_X:
-              keyboard[13] = 0;
-              break;
-            case SDL_SCANCODE_C:
-              keyboard[14] = 0;
-              break;
-            case SDL_SCANCODE_V:
-              keyboard[15] = 0;
+            case SDLK_v:
+              keyboard[15] = val;
               break;
             }
           }
@@ -182,6 +140,10 @@ int main(int argc, char **argv)
       }
     }
 
+    if (texture)
+    {
+      SDL_DestroyTexture(texture);
+    }
     if (renderer)
     {
       SDL_DestroyRenderer(renderer);

@@ -42,9 +42,6 @@
 #define cdebug(fmt, ...)
 #endif
 
-uint8_t display[64][32];
-uint8_t keyboard[16]; // 16 keys
-
 static const uint8_t RATE = 60; // 60Hz
 
 static uint8_t fonts[] = {
@@ -65,6 +62,11 @@ static uint8_t fonts[] = {
     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
+
+#define KEYBOARD_LENGTH 16
+
+uint8_t display[64][32];
+uint8_t keyboard[KEYBOARD_LENGTH];
 
 static uint8_t memory[0x1000];              // Memory 0x1000 8-bits addresses
 static uint8_t V[16];                       // Registers
@@ -146,7 +148,7 @@ static void ascii2bcd(uint8_t arr[3], uint8_t num)
 }
 
 /*
-  Debug
+  Debug CPU
 */
 
 static void debug()
@@ -168,8 +170,7 @@ static void debug()
 /*
   Debug display
 */
-static void
-debug_display()
+static void debug_display()
 {
 #if DEBUG
   for (uint8_t y = 0; y < 32; y++)
@@ -184,8 +185,17 @@ debug_display()
 }
 
 /*
-  Debug opcode
+  Debug keyboard
 */
+static void debug_keyboard()
+{
+#if DEBUG
+  for (uint8_t key = 0; key < KEYBOARD_LENGTH; key++)
+  {
+    printf("k(%x): %x\n", key, keyboard[key]);
+  }
+#endif
+}
 
 /*
   Initialize CPU and start
@@ -216,7 +226,7 @@ void chip8_step()
   if (ST)
     ST--;
 
-  debug();
+  //debug();
 
   switch (type)
   {
@@ -434,7 +444,7 @@ void chip8_step()
       }
       row++; // Jump to another row
     }
-    debug_display();
+    //debug_display();
     PC += 2;
   }
   break;
@@ -443,17 +453,17 @@ void chip8_step()
     switch (n)
     {
     case 0xE: // SKP Vx
-      if (keyboard[x])
+      if (keyboard[x] == 1)
       {
-        cdebug("KEY DOWN: %X\n", keyboard[x]);
+        cdebug("\033[0;31mKEY DOWN: %X\n\033[0m", keyboard[x]);
         PC += 2;
       }
       PC += 2;
       break;
     case 0x1: // SKNP Vx
-      if (!keyboard[x])
+      if (keyboard[x] == 0)
       {
-        cdebug("KEY UP: %X\n", keyboard[x]);
+        cdebug("\033[0;31mKEY UP: %X\n\033[0m", keyboard[x]);
         PC += 2;
       }
       PC += 2;
