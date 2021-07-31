@@ -134,7 +134,7 @@ int main(int argc, char **argv)
         Uint32 diff = SDL_GetTicks() - start;
         if (diff < FPS)
         {
-          SDL_Delay(FPS - diff);
+          //SDL_Delay(FPS - diff);
         }
         chip8_step();
       }
