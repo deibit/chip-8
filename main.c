@@ -29,7 +29,7 @@ int main(int argc, char **argv)
   chip8_init();
   size_t loaded = chip8_load(argv[1]);
   uint32_t speed = 1000 / 350;
-  if (argc > 1)
+  if (argc > 2)
   {
     speed = 1000 / atoi(argv[2]);
   }
