@@ -61,7 +61,6 @@ static uint8_t fonts[] = {
 
 uint8_t display[64][32];
 uint8_t keyboard[KEYBOARD_LENGTH];
-uint8_t draw = 0;
 
 static uint8_t memory[0x1000];              // Memory 0x1000 8-bits addresses
 static uint8_t V[16];                       // Registers
@@ -207,6 +206,7 @@ void chip8_init(void)
 
 uint8_t chip8_step()
 {
+  uint8_t draw = 0;
   uint16_t opcode = fetch();
   uint8_t type = (opcode & 0xF000) >> 12;
 
@@ -229,8 +229,9 @@ uint8_t chip8_step()
     switch (opcode)
     {
     case 0x00E0: // Clear display
-      clear_display();
       cdebug("CLS\n");
+      clear_display();
+      draw = 1;
       PC += 2;
       break;
 

@@ -27,6 +27,10 @@ static void draw(Uint32 *pixels)
 
 int main(int argc, char **argv)
 {
+  chip8_init();
+  size_t loaded = chip8_load(argv[1]);
+
+
   if (SDL_Init(SDL_INIT_VIDEO) == 0)
   {
     SDL_Window *window = NULL;
@@ -45,11 +49,6 @@ int main(int argc, char **argv)
     if (window && renderer && texture)
     {
       SDL_bool done = SDL_FALSE;
-
-      chip8_init();
-      size_t loaded = chip8_load(argv[1]);
-      //chip8_print_memory(loaded);
-
       Uint32 *pixels = NULL;
       int pitch;
       Uint32 start = 0;
@@ -59,6 +58,8 @@ int main(int argc, char **argv)
 
       while (!done)
       {
+        do_draw = chip8_step();
+        steps++;
         start = SDL_GetTicks();
 
         // Using texture instead of direct to renderer
@@ -139,8 +140,7 @@ int main(int argc, char **argv)
           }
         }
 
-        do_draw = chip8_step();
-        steps++;
+
 
         Uint32 diff = SDL_GetTicks() - start;
         if (diff < FPS)
