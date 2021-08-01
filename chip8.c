@@ -208,8 +208,8 @@ uint8_t chip8_step()
 {
   uint8_t draw = 0;
   uint16_t opcode = fetch();
+  
   uint8_t type = (opcode & 0xF000) >> 12;
-
   uint16_t nnn = opcode & 0x0FFF;
   uint8_t x = (opcode >> 8) & 0x000F;
   uint8_t y = (opcode >> 4) & 0x000F;

@@ -7,7 +7,6 @@
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 320
-#define FPS (1000 / 60)
 
 extern uint8_t display[64][32];
 extern uint8_t keyboard[16];
@@ -29,7 +28,11 @@ int main(int argc, char **argv)
 {
   chip8_init();
   size_t loaded = chip8_load(argv[1]);
-
+  uint32_t speed = 1000 / 350;
+  if (argc > 1)
+  {
+    speed = 1000 / atoi(argv[2]);
+  }
 
   if (SDL_Init(SDL_INIT_VIDEO) == 0)
   {
@@ -140,12 +143,10 @@ int main(int argc, char **argv)
           }
         }
 
-
-
         Uint32 diff = SDL_GetTicks() - start;
-        if (diff < FPS)
+        if (diff < speed)
         {
-          SDL_Delay(FPS - diff);
+          SDL_Delay(speed - diff);
         }
 
         second += diff;
