@@ -12,7 +12,7 @@
 extern uint8_t display[64][32];
 extern uint8_t keyboard[16];
 
-void draw(Uint32 *pixels)
+static void draw(Uint32 *pixels)
 {
   for (uint8_t y = 0; y < 32; y++)
   {
@@ -49,11 +49,13 @@ int main(int argc, char **argv)
       chip8_init();
       size_t loaded = chip8_load(argv[1]);
       //chip8_print_memory(loaded);
-      //exit(0);
 
-      Uint32 *pixels;
+      Uint32 *pixels = NULL;
       int pitch;
-      Uint32 start;
+      Uint32 start = 0;
+      Uint32 second = 0;
+      Uint32 steps = 0;
+      uint8_t do_draw = 0;
 
       while (!done)
       {
@@ -61,13 +63,17 @@ int main(int argc, char **argv)
 
         // Using texture instead of direct to renderer
         // https://github.com/danirod/chip8/blob/devel/src/chip8/libsdl.c#L217
-        SDL_LockTexture(texture, NULL, (void **)&pixels, &pitch);
-        draw(pixels);
-        SDL_UnlockTexture(texture);
+        if (do_draw)
+        {
+          SDL_LockTexture(texture, NULL, (void **)&pixels, &pitch);
+          draw(pixels);
+          SDL_UnlockTexture(texture);
 
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
+          SDL_RenderClear(renderer);
+          SDL_RenderCopy(renderer, texture, NULL, NULL);
+          SDL_RenderPresent(renderer);
+          do_draw = 0;
+        }
 
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -127,16 +133,28 @@ int main(int argc, char **argv)
             case SDLK_v:
               keyboard[15] = val;
               break;
+            default:
+              break;
             }
           }
         }
 
+        do_draw = chip8_step();
+        steps++;
+
         Uint32 diff = SDL_GetTicks() - start;
         if (diff < FPS)
         {
-          //SDL_Delay(FPS - diff);
+          SDL_Delay(FPS - diff);
         }
-        chip8_step();
+
+        second += diff;
+        if (second > 1000)
+        {
+          printf("*** (second: %i) STEPS ---> %i\n", second, steps);
+          steps = 0;
+          second = 0;
+        }
       }
     }
 

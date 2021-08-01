@@ -18,12 +18,6 @@
 #include "chip8.h"
 
 #define LEN(x) (sizeof(x) / sizeof(*x))
-#define NNN(x) (x & 0x0FFF)
-#define KK(x) ((x & 0x00FF))
-#define OPCODE_TYPE(x) ((x & 0xF000) >> 12)
-#define N(x) (x & 0x000F)
-#define X(x) ((x & 0x0F00) >> 8)
-#define Y(x) ((x & 0x00F0) >> 4)
 #define MAX_STACK_SIZE 256
 
 #define PROGRAM_START_ADDRESS 0x200
@@ -67,6 +61,7 @@ static uint8_t fonts[] = {
 
 uint8_t display[64][32];
 uint8_t keyboard[KEYBOARD_LENGTH];
+uint8_t draw = 0;
 
 static uint8_t memory[0x1000];              // Memory 0x1000 8-bits addresses
 static uint8_t V[16];                       // Registers
@@ -100,7 +95,7 @@ size_t chip8_load(char *file)
   Fetch one 16 bit opcode from 'memory' and return it
   Assume a Little Endian platform.
 */
-static uint16_t fetch()
+static inline uint16_t fetch()
 {
   uint16_t word = *((uint16_t *)(memory + PC));
   return (word >> 8) | (word << 8);
@@ -109,7 +104,7 @@ static uint16_t fetch()
 /*
   Another way to read instructions from memory (just to debug)
 */
-static uint16_t get_memory_value_at(uint16_t address)
+static inline uint16_t get_memory_value_at(uint16_t address)
 {
   uint16_t word = memory[address] << 8;
   word = word ^ memory[address + 1];
@@ -210,16 +205,16 @@ void chip8_init(void)
   srand(time(0));
 }
 
-void chip8_step()
+uint8_t chip8_step()
 {
   uint16_t opcode = fetch();
-  uint8_t type = OPCODE_TYPE(opcode);
+  uint8_t type = (opcode & 0xF000) >> 12;
 
-  uint16_t nnn = NNN(opcode);
-  uint8_t x = X(opcode);
-  uint8_t y = Y(opcode);
-  uint8_t kk = KK(opcode);
-  uint8_t n = N(opcode);
+  uint16_t nnn = opcode & 0x0FFF;
+  uint8_t x = (opcode >> 8) & 0x000F;
+  uint8_t y = (opcode >> 4) & 0x000F;
+  uint8_t kk = opcode & 0x00FF;
+  uint8_t n = opcode & 0x000F;
 
   if (DT)
     DT--;
@@ -262,8 +257,8 @@ void chip8_step()
     break;
 
   case 0x3: // SE Vx, byte
-    PC += 2;
     cdebug("SKIP IF V(%X): (%X), EQUALS byte (%X)\n", x, V[x], kk);
+    PC += 2;
     if (V[x] == kk)
     {
       PC += 2;
@@ -271,8 +266,8 @@ void chip8_step()
     break;
 
   case 0x4: // SNE Vx, byte
-    PC += 2;
     cdebug("SKIP IF V(%X): (%X) IS NOT %X\n", x, V[x], kk);
+    PC += 2;
     if (V[x] != kk)
     {
       PC += 2;
@@ -280,10 +275,10 @@ void chip8_step()
     break;
 
   case 0x5: // SE Vx, Vy
+    cdebug("SKIP IF V(%X): %X IS EQUAL V(%X): %X\n", x, V[x], y, V[y]);
     PC += 2;
     if (V[x] == V[y])
     {
-      cdebug("SKIP IF V(%X): %X IS EQUAL V(%X): %X\n", x, V[x], y, V[y]);
       PC += 2;
     }
 
@@ -416,9 +411,6 @@ void chip8_step()
 
   case 0xD: // DRW Vx, Vy, nibble
   {
-    //clear_display();
-
-    const uint8_t BITS[8] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
     V[0xF] = 0;
 
     cdebug("DRAW at X: %u Y: %u FROM: %X, %X bytes\n", V[x], V[y], I, n);
@@ -444,8 +436,8 @@ void chip8_step()
       }
       row++; // Jump to another row
     }
-    //debug_display();
     PC += 2;
+    draw = 1;
   }
   break;
 
@@ -453,21 +445,23 @@ void chip8_step()
     switch (n)
     {
     case 0xE: // SKP Vx
-      if (keyboard[x] == 1)
+      if (keyboard[x])
       {
-        cdebug("\033[0;31mKEY DOWN: %X\n\033[0m", keyboard[x]);
+        cdebug("\033[0;33mKEY DOWN (%X): %X\n\033[0m", x, keyboard[x]);
         PC += 2;
       }
       PC += 2;
       break;
+
     case 0x1: // SKNP Vx
-      if (keyboard[x] == 0)
+      if (!keyboard[x])
       {
-        cdebug("\033[0;31mKEY UP: %X\n\033[0m", keyboard[x]);
+        cdebug("\033[0;31mKEY UP (%X): %X\n\033[0m", x, keyboard[x]);
         PC += 2;
       }
       PC += 2;
       break;
+
     default:
       cdebug("Opps, unknown 0xE type opcode: %X\n", opcode);
       exit(-1);
@@ -540,6 +534,7 @@ void chip8_step()
       {
         memory[I + i] = V[i];
       }
+      I += x + 1;
       PC += 2;
       break;
 
@@ -549,6 +544,7 @@ void chip8_step()
       {
         V[i] = memory[I + i];
       }
+      I += x + 1;
       PC += 2;
       break;
     default:
@@ -562,4 +558,6 @@ void chip8_step()
     fprintf(stderr, "Oops! Unknown opcode type: %x\n", opcode);
     exit(-1);
   }
+
+  return draw;
 }
