@@ -79,6 +79,7 @@ int main(int argc, char **argv)
           do_draw = 0;
         }
 
+        // Keymap https://massung.github.io/CHIP-8/
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -90,52 +91,52 @@ int main(int argc, char **argv)
             switch (event.key.keysym.sym)
             {
             case SDLK_1:
-              keyboard[0] = val;
+              keyboard[0x1] = val;
               break;
             case SDLK_2:
-              keyboard[1] = val;
+              keyboard[0x2] = val;
               break;
             case SDLK_3:
-              keyboard[2] = val;
+              keyboard[0x3] = val;
               break;
             case SDLK_4:
-              keyboard[3] = val;
+              keyboard[0xC] = val;
               break;
             case SDLK_q:
-              keyboard[4] = val;
+              keyboard[0x4] = val;
               break;
             case SDLK_w:
-              keyboard[5] = val;
+              keyboard[0x5] = val;
               break;
             case SDLK_e:
-              keyboard[6] = val;
+              keyboard[0x6] = val;
               break;
             case SDLK_r:
-              keyboard[7] = val;
+              keyboard[0xD] = val;
               break;
             case SDLK_a:
-              keyboard[8] = val;
+              keyboard[0x7] = val;
               break;
             case SDLK_s:
-              keyboard[9] = val;
+              keyboard[0x8] = val;
               break;
             case SDLK_d:
-              keyboard[10] = val;
+              keyboard[0x9] = val;
               break;
             case SDLK_f:
-              keyboard[11] = val;
+              keyboard[0xE] = val;
               break;
             case SDLK_z:
-              keyboard[12] = val;
+              keyboard[0xA] = val;
               break;
             case SDLK_x:
-              keyboard[13] = val;
+              keyboard[0x0] = val;
               break;
             case SDLK_c:
-              keyboard[14] = val;
+              keyboard[0xB] = val;
               break;
             case SDLK_v:
-              keyboard[15] = val;
+              keyboard[0xF] = val;
               break;
             default:
               break;

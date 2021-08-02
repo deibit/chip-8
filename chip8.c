@@ -208,7 +208,7 @@ uint8_t chip8_step()
 {
   uint8_t draw = 0;
   uint16_t opcode = fetch();
-  
+
   uint8_t type = (opcode & 0xF000) >> 12;
   uint16_t nnn = opcode & 0x0FFF;
   uint8_t x = (opcode >> 8) & 0x000F;
@@ -446,21 +446,13 @@ uint8_t chip8_step()
     switch (n)
     {
     case 0xE: // SKP Vx
-      if (keyboard[x])
-      {
-        cdebug("\033[0;33mKEY DOWN (%X): %X\n\033[0m", x, keyboard[x]);
-        PC += 2;
-      }
-      PC += 2;
+      cdebug("\033[0;33mKEY DOWN (%X): %X\n\033[0m", x, keyboard[x]);
+      PC += keyboard[x] == 1 ? 4 : 2;
       break;
 
     case 0x1: // SKNP Vx
-      if (!keyboard[x])
-      {
-        cdebug("\033[0;31mKEY UP (%X): %X\n\033[0m", x, keyboard[x]);
-        PC += 2;
-      }
-      PC += 2;
+      cdebug("\033[0;31mKEY UP (%X): %X\n\033[0m", x, keyboard[x]);
+      PC += keyboard[x] == 0 ? 4 : 2;
       break;
 
     default:
