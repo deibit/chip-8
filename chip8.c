@@ -23,7 +23,7 @@
 #define PROGRAM_START_ADDRESS 0x200
 #define MAX_PROGRAM_MEMORY 0x1000 - 0x200
 
-#define DEBUG 1
+#define DEBUG 0
 
 #if DEBUG
 #define cdebug(...)               \
@@ -220,8 +220,6 @@ uint8_t chip8_step()
     DT--;
   if (ST)
     ST--;
-
-  //debug();
 
   switch (type)
   {
