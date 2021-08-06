@@ -17,3 +17,9 @@ C implementation of CHIP-8
 ## Usage
 
 `chip8 ..games/<game.ch8>`
+
+## Speed
+
+You can modulate emulation speed by giving a second param.
+
+`chip8 ..games/<game.ch8> 120`
