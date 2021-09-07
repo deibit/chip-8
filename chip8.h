@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdint.h>
 
 #ifndef CHIP8
 #define CHIP8

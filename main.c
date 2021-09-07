@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
+#include <stdint.h>
 
 #include "SDL.h"
 #include "chip8.h"
