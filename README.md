@@ -23,3 +23,7 @@ C implementation of CHIP-8
 You can modulate emulation speed by giving a second param.
 
 `chip8 ..games/<game.ch8> 120`
+
+## Test suite
+
+Use (https://github.com/Timendus/chip8-test-suite)[https://github.com/Timendus/chip8-test-suite]
