@@ -26,4 +26,4 @@ You can modulate emulation speed by giving a second param.
 
 ## Test suite
 
-Use (https://github.com/Timendus/chip8-test-suite)[https://github.com/Timendus/chip8-test-suite]
+Use [https://github.com/Timendus/chip8-test-suite](https://github.com/Timendus/chip8-test-suite)
